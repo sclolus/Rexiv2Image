@@ -1,0 +1,13 @@
+[package]
+name = "rexiv2image"
+version = "0.1.0"
+authors = ["sclolus"]
+description = "Simply crate written in Rust which merge the image and rexiv2 crates into a more abstract and generic way"
+
+[lib]
+name = "rexiv2image"
+path = "./src/lib.rs"
+
+[dependencies]
+image = "0.18.0"
+rexiv2 = "0.5.0"
