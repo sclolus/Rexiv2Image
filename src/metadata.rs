@@ -4,6 +4,7 @@ use std::path::Path;
 use std::convert::From;
 use std::result::Result;
 use std::error::Error;
+use std::fmt::{Display, Formatter, Result as FmtResult};
 use std;
 use self::png::*;
 use self::png;
@@ -158,13 +159,15 @@ impl ImageDecoder for DecoderWithMetadata {
     fn read_image(&mut self) -> ImageResult<DecodingResult> {
         self.decoder.read_image()
     }
-
+    
     fn is_animated(&mut self) -> ImageResult<bool> {
         self.decoder.is_animated()
     }
+    
     fn into_frames(self) -> ImageResult<Frames> {
         self.decoder.into_frames()
     }
+    
     fn load_rect(&mut self, x: u32, y: u32, length: u32, width: u32) -> ImageResult<Vec<u8>> {
         self.decoder.load_rect(x, y, length, width)
     }
@@ -185,5 +188,32 @@ impl From<ImageError> for Rexiv2ImageError {
 impl From<std::io::Error> for Rexiv2ImageError {
     fn from(error: std::io::Error) -> Rexiv2ImageError {
         Rexiv2ImageError::Internal(error.description().to_string())
+    }
+}
+
+impl Display for Rexiv2ImageError {
+    fn fmt(&self, f: &mut Formatter) -> FmtResult {
+        match *self {
+            Rexiv2ImageError::Internal(ref err_string) => write!(f, "{}", err_string),
+            Rexiv2ImageError::MetadataError(ref err) => err.fmt(f),
+            Rexiv2ImageError::DecoderError(ref err) => err.fmt(f),
+        }
+    }
+}
+
+impl Error for Rexiv2ImageError {
+    fn description(&self) -> &str {
+        match *self {
+            Rexiv2ImageError::MetadataError(ref err) => err.description(),
+            Rexiv2ImageError::DecoderError(ref err) => err.description(),
+            Rexiv2ImageError::Internal(ref err) => err.as_str(),
+        }
+    }
+    fn cause(&self) -> Option<&Error> {
+        match *self {
+            Rexiv2ImageError::MetadataError(ref err) => Some(err),
+            Rexiv2ImageError::DecoderError(ref err) => Some(err),
+            Rexiv2ImageError::Internal(_) => None,
+        }
     }
 }
