@@ -24,7 +24,7 @@ use self::gif;
 use image::*;
 use image::ColorType;
 
-
+#[derive(Debug)]
 pub enum Rexiv2ImageError {
     //Error from rexiv2 crate
     MetadataError(Rexiv2Error),
